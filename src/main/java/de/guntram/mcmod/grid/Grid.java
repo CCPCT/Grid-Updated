@@ -19,6 +19,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.ChunkRandom;
@@ -289,7 +290,7 @@ public class Grid implements ClientModInitializer
         int miny=(int)(player.getY())-64;
         int maxy=(int)(player.getY())+2;
 
-        World playerWorld = player.getWorld();
+        World playerWorld = MinecraftClient.getInstance().world;
         if (miny<playerWorld.getBottomY()) { miny=playerWorld.getBottomY(); }
         if (maxy>playerWorld.getTopYInclusive()-1)  { maxy=playerWorld.getTopYInclusive()-1; }
 
@@ -359,7 +360,7 @@ public class Grid implements ClientModInitializer
         int miny=(int)(player.getY())-64;
         int maxy=(int)(player.getY())+2;
 
-        World playerWorld = player.getWorld();
+        World playerWorld = MinecraftClient.getInstance().world;
         if (miny<playerWorld.getBottomY()) { miny=playerWorld.getBottomY(); }
         if (maxy>playerWorld.getTopYInclusive()-1)  { maxy=playerWorld.getTopYInclusive()-1; }
 
@@ -395,7 +396,7 @@ public class Grid implements ClientModInitializer
     private void showBiomes(VertexConsumer consumer, Entity player, int baseX, int baseZ) {
         int miny=(int)(player.getY())-16;
         int maxy=(int)(player.getY());
-        World playerWorld = player.getWorld();
+        World playerWorld = MinecraftClient.getInstance().world;
         if (miny<playerWorld.getBottomY()) { miny=playerWorld.getBottomY(); }
         if (maxy>playerWorld.getTopYInclusive()-1)  { maxy=playerWorld.getTopYInclusive()-1; }
 
@@ -652,7 +653,7 @@ public class Grid implements ClientModInitializer
             return;
         } else if (MinecraftClient.getInstance().isConnectedToLocalServer()) {
             IntegratedServer server = MinecraftClient.getInstance().getServer();
-            long seed = server.getWorld(player.getWorld().getRegistryKey()).getSeed();
+            long seed = server.getWorld(MinecraftClient.getInstance().world.getRegistryKey()).getSeed();
             cmdSlime(player, true, seed);
         } else {
             player.sendMessage(Text.translatable("msg.gridnoseed"),false);
@@ -660,7 +661,7 @@ public class Grid implements ClientModInitializer
     }
 
     private void cmdSlime(ClientPlayerEntity player, boolean show, long seed) {
-        World world = player.getWorld();
+        World world = MinecraftClient.getInstance().world;
         if (show) {
             player.sendMessage(Text.translatable("msg.gridslimeon", seed),false);
             showSlimes = true;
@@ -836,7 +837,7 @@ public class Grid implements ClientModInitializer
     }
 
     public void setKeyBindings() {
-        final String category="key.categories.grid";
+        final KeyBinding.Category category=KeyBinding.Category.create(Identifier.of("key.categories.grid"));
         KeyBindingHelper.registerKeyBinding(showHide = new KeyBinding("key.grid.showhide", InputUtil.Type.KEYSYM, GLFW_KEY_B, category));
         KeyBindingHelper.registerKeyBinding(gridHere = new KeyBinding("key.grid.here", InputUtil.Type.KEYSYM, GLFW_KEY_C, category));
         KeyBindingHelper.registerKeyBinding(gridFixY = new KeyBinding("key.grid.fixy", InputUtil.Type.KEYSYM, GLFW_KEY_Y, category));

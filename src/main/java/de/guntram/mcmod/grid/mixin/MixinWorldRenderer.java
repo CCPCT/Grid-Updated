@@ -3,6 +3,7 @@ package de.guntram.mcmod.grid.mixin;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import de.guntram.mcmod.grid.Grid;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.state.WorldRenderState;
 import net.minecraft.client.util.Handle;
 import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
@@ -32,7 +33,7 @@ public class MixinWorldRenderer {
             ),
             remap = false // Critical: synthetic methods aren't in the mapping files
     )
-    public void renderGrid(GpuBufferSlice gpuBufferSlice, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Handle handle, Handle handle2, boolean bl, Frustum frustum, Handle handle3, Handle handle4, CallbackInfo ci) {
+    public void renderGrid(GpuBufferSlice gpuBufferSlice, WorldRenderState worldRenderState, Profiler profiler, Matrix4f matrix4f, Handle handle, Handle handle2, boolean bl, Handle handle3, Handle handle4, CallbackInfo ci) {
               Vec3d vec3d = camera.getPos();
         double x = vec3d.getX();
         double y = vec3d.getY();

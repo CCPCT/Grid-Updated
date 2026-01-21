@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.11-SNAPSHOT'
+    id 'fabric-loom' version '1.13-SNAPSHOT'
 }
 
 loom {
@@ -14,7 +14,7 @@ repositories {
 }
 
 // 1. Determine which version we are targeting (default to 1.21.2)
-def target = project.hasProperty('target') ? project.property('target') : '1.21.6'
+def target = project.hasProperty('target') ? project.property('target') : '1.21.9'
 
 // 2. Point to the file in the 'versions' folder
 def propsFile = file("versions/${target}.properties")
