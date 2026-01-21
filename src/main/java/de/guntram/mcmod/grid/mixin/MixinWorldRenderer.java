@@ -2,6 +2,7 @@ package de.guntram.mcmod.grid.mixin;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import de.guntram.mcmod.grid.Grid;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.state.WorldRenderState;
 import net.minecraft.client.util.Handle;
@@ -34,11 +35,11 @@ public class MixinWorldRenderer {
             remap = false // Critical: synthetic methods aren't in the mapping files
     )
     public void renderGrid(GpuBufferSlice gpuBufferSlice, WorldRenderState worldRenderState, Profiler profiler, Matrix4f matrix4f, Handle handle, Handle handle2, boolean bl, Handle handle3, Handle handle4, CallbackInfo ci) {
-              Vec3d vec3d = camera.getPos();
-        double x = vec3d.getX();
-        double y = vec3d.getY();
-        double z = vec3d.getZ();
+        Vec3d cameraPos = worldRenderState.cameraRenderState.pos;
+        double x = cameraPos.getX();
+        double y = cameraPos.getY();
+        double z = cameraPos.getZ();
         VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEntityVertexConsumers();
-        Grid.instance.renderOverlay(renderTickCounter.getDynamicDeltaTicks(), immediate.getBuffer(RenderLayer.getLines()), x, y, z);
+        Grid.instance.renderOverlay(MinecraftClient.getInstance().gameRenderer.getCamera().getLastTickProgress(),immediate.getBuffer(RenderLayers.LINES) , x, y, z);
     }
 }
