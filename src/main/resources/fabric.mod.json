@@ -19,7 +19,7 @@
         "modmenu": "*",
         "cloth-config": "*"
     },
-    "name": "Grid",
+    "name": "Grid Updated",
     "description": "Markers to help with counting blocks, building circles, and showing possible mob spawn locations",
     "icon": "icon.png",
     "authors": [ "Giselbaer", "CCPCT" ],

@@ -127,7 +127,6 @@ public class Grid implements ClientModInitializer, ModConfigurationHandler
 
     @Override
     public void onInitializeClient() {
-        CrowdinTranslate.downloadTranslations(MODID);
         instance=this;
         ConfigurationHandler confHandler = ConfigurationHandler.getInstance();
         ConfigurationProvider.register(MODNAME, confHandler);
@@ -322,7 +321,7 @@ public class Grid implements ClientModInitializer, ModConfigurationHandler
 
         World playerWorld = player.getWorld();
         if (miny<playerWorld.getBottomY()) { miny=playerWorld.getBottomY(); }
-        if (maxy>playerWorld.getTopY()-1)  { maxy=playerWorld.getTopY()-1; }
+        if (maxy>playerWorld.getTopYInclusive()-1)  { maxy=playerWorld.getTopYInclusive()-1; }
 
         WorldChunk cachedChunk = null;
 
@@ -392,7 +391,7 @@ public class Grid implements ClientModInitializer, ModConfigurationHandler
 
         World playerWorld = player.getWorld();
         if (miny<playerWorld.getBottomY()) { miny=playerWorld.getBottomY(); }
-        if (maxy>playerWorld.getTopY()-1)  { maxy=playerWorld.getTopY()-1; }
+        if (maxy>playerWorld.getTopYInclusive()-1)  { maxy=playerWorld.getTopYInclusive()-1; }
 
         int chunkx = Integer.MAX_VALUE;
         int chunkz = Integer.MAX_VALUE;
@@ -428,7 +427,7 @@ public class Grid implements ClientModInitializer, ModConfigurationHandler
         int maxy=(int)(player.getY());
         World playerWorld = player.getWorld();
         if (miny<playerWorld.getBottomY()) { miny=playerWorld.getBottomY(); }
-        if (maxy>playerWorld.getTopY()-1)  { maxy=playerWorld.getTopY()-1; }
+        if (maxy>playerWorld.getTopYInclusive()-1)  { maxy=playerWorld.getTopYInclusive()-1; }
 
         biomeUpdateX++;
         if (biomeUpdateX < (baseX-distance) || biomeUpdateX > baseX+distance) {
@@ -688,18 +687,18 @@ public class Grid implements ClientModInitializer, ModConfigurationHandler
             long seed = server.getWorld(player.getWorld().getRegistryKey()).getSeed();
             cmdSlime(player, true, seed);
         } else {
-            player.sendMessage(Text.literal(I18n.translate("msg.gridnoseed")));
+            player.sendMessage(Text.translatable("msg.gridnoseed"),false);
         }
     }
 
     private void cmdSlime(ClientPlayerEntity player, boolean show, long seed) {
         World world = player.getWorld();
         if (show) {
-            player.sendMessage(Text.literal(I18n.translate("msg.gridslimeon", seed)));
+            player.sendMessage(Text.translatable("msg.gridslimeon", seed),false);
             showSlimes = true;
             slimeSeed = seed;
         } else {
-            player.sendMessage(Text.literal(I18n.translate("msg.gridslimeoff")));
+            player.sendMessage(Text.translatable("msg.gridslimeoff"),false);
             showSlimes = false;
         }
     }

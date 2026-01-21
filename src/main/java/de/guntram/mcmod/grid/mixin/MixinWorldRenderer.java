@@ -1,17 +1,14 @@
 package de.guntram.mcmod.grid.mixin;
 
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import de.guntram.mcmod.grid.Grid;
-import net.minecraft.client.render.BufferBuilderStorage;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.*;
+import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemGroup.DisplayContext;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,14 +27,12 @@ public class MixinWorldRenderer {
                    args= { "ldc=destroyProgress" }
             ))
 
-    public void renderGrid(MatrixStack stack, float tickDelta, long limitTime, boolean renderBlockOutline,
-            Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, 
-            Matrix4f matrix4f, CallbackInfo ci) {
+    public void renderGrid(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, Matrix4f positionMatrix, Matrix4f projectionMatrix, GpuBufferSlice fog, Vector4f fogColor, boolean shouldRenderSky, CallbackInfo ci) {
               Vec3d vec3d = camera.getPos();
         double x = vec3d.getX();
         double y = vec3d.getY();
         double z = vec3d.getZ();
         VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEntityVertexConsumers();
-        Grid.instance.renderOverlay(tickDelta, stack, immediate.getBuffer(RenderLayer.getLines()), x, y, z);
+        Grid.instance.renderOverlay(tickCounter.getDynamicDeltaTicks(), stack, immediate.getBuffer(RenderLayer.getLines()), x, y, z);
     }
 }
