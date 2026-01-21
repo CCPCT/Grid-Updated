@@ -23,11 +23,6 @@ public class MixinWorldRenderer {
     
     @Shadow @Final private BufferBuilderStorage bufferBuilders;
 
-//    @Inject(method="renderMain",
-//            at=@At(value="INVOKE_STRING",
-//                   target="Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
-//                   args= { "ldc=destroyProgress" }
-//            ))
     @Inject(
             method = "method_62214",
             at = @At(
@@ -43,6 +38,6 @@ public class MixinWorldRenderer {
         double y = vec3d.getY();
         double z = vec3d.getZ();
         VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEntityVertexConsumers();
-        Grid.instance.renderOverlay(renderTickCounter.getDynamicDeltaTicks(), matrix4f, immediate.getBuffer(RenderLayer.getLines()), x, y, z);
+        Grid.instance.renderOverlay(renderTickCounter.getDynamicDeltaTicks(), immediate.getBuffer(RenderLayer.getLines()), x, y, z);
     }
 }

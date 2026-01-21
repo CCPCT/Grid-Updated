@@ -1,21 +1,8 @@
 package de.guntram.mcmod.grid;
 
-import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
-import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
-import static com.mojang.brigadier.arguments.LongArgumentType.getLong;
-import static com.mojang.brigadier.arguments.LongArgumentType.longArg;
-import static com.mojang.brigadier.arguments.StringArgumentType.getString;
-import static com.mojang.brigadier.arguments.StringArgumentType.string;
-
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import de.guntram.mcmod.grid.modConfig.ConfigScreen;
 import de.guntram.mcmod.grid.modConfig.ModConfig;
 import net.fabricmc.api.ClientModInitializer;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -23,39 +10,37 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.world.LightType;
-import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.WorldChunk;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_C;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_L;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_Y;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
+import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
+import static com.mojang.brigadier.arguments.LongArgumentType.getLong;
+import static com.mojang.brigadier.arguments.LongArgumentType.longArg;
+import static com.mojang.brigadier.arguments.StringArgumentType.getString;
+import static com.mojang.brigadier.arguments.StringArgumentType.string;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class Grid implements ClientModInitializer
 {
@@ -144,7 +129,7 @@ public class Grid implements ClientModInitializer
         return result;
     }
     
-    public void renderOverlay(float partialTicks, Matrix4f originalMatrix, VertexConsumer consumer, double cameraX, double cameraY, double cameraZ) {
+    public void renderOverlay(float partialTicks, VertexConsumer consumer, double cameraX, double cameraY, double cameraZ) {
         
         if (!showGrid && !showSpawns && !showSlimes && showBiomes == null)
             return;
@@ -158,8 +143,6 @@ public class Grid implements ClientModInitializer
         slimeColor =        colorToRgb(ModConfig.get().slimeColor);
 
         Entity player = MinecraftClient.getInstance().getCameraEntity();
-        Matrix4f matrix;
-        matrix = new Matrix4f(originalMatrix);
         // don't translate, subtract manaully in vertex()
         // stack.translate(-cameraX, -cameraY, -cameraZ);
         this.cameraX = cameraX;
@@ -193,26 +176,24 @@ public class Grid implements ClientModInitializer
                 y=tempy-0.05f;
             }
 
-            matrix = new Matrix4f(originalMatrix);
-            matrix.translate(offsetX, 0, offsetZ);
             int circRadSquare=(gridX/2)*(gridX/2);
             if (isBlocks) {
                 for (int x=baseX-sizeX; x<=baseX+sizeX; x+=gridX) {
                     for (int z=baseZ-sizeZ; z<=baseZ+sizeZ; z+=gridZ) {
                         if (isHexes) {
                             if (gridX >= gridZ) {
-                                drawXTriangleVertex(consumer, matrix, x, y, z,                   true,  blockColor[0], blockColor[1], blockColor[2]);       //  dot itself
-                                drawXTriangleVertex(consumer, matrix, x-gridZ/4f, y, z-gridZ/2f, false, blockColor[0], blockColor[1], blockColor[2]);       // left bottom of myself red
-                                drawXTriangleVertex(consumer, matrix, x+gridX/2f-gridZ/4f, y, z, false, blockColor[0], blockColor[1], blockColor[2]);       // node right orange
-                                drawXTriangleVertex(consumer, matrix, x+gridX/2f, y, z-gridZ/2f, true,  blockColor[0], blockColor[1], blockColor[2]);       // right bottom of right node yellowgreenish
+                                drawXTriangleVertex(consumer, x, y, z,                   true,  blockColor[0], blockColor[1], blockColor[2]);       //  dot itself
+                                drawXTriangleVertex(consumer, x-gridZ/4f, y, z-gridZ/2f, false, blockColor[0], blockColor[1], blockColor[2]);       // left bottom of myself red
+                                drawXTriangleVertex(consumer, x+gridX/2f-gridZ/4f, y, z, false, blockColor[0], blockColor[1], blockColor[2]);       // node right orange
+                                drawXTriangleVertex(consumer, x+gridX/2f, y, z-gridZ/2f, true,  blockColor[0], blockColor[1], blockColor[2]);       // right bottom of right node yellowgreenish
                             } else {
-                                drawYTriangleVertex(consumer, matrix, x, y, z,                   true,  blockColor[0], blockColor[1], blockColor[2]);       //  dot itself
-                                drawYTriangleVertex(consumer, matrix, x-gridX/2f, y, z-gridX/4f, false, blockColor[0], blockColor[1], blockColor[2]);       // left bottom of myself red
-                                drawYTriangleVertex(consumer, matrix, x, y, z+gridZ/2f-gridX/4f, false, blockColor[0], blockColor[1], blockColor[2]);       // node right orange
-                                drawYTriangleVertex(consumer, matrix, x-gridX/2f, y, z+gridZ/2f, true,  blockColor[0], blockColor[1], blockColor[2]);       // right bottom of right node yellowgreenish
+                                drawYTriangleVertex(consumer, x, y, z,                   true,  blockColor[0], blockColor[1], blockColor[2]);       //  dot itself
+                                drawYTriangleVertex(consumer, x-gridX/2f, y, z-gridX/4f, false, blockColor[0], blockColor[1], blockColor[2]);       // left bottom of myself red
+                                drawYTriangleVertex(consumer, x, y, z+gridZ/2f-gridX/4f, false, blockColor[0], blockColor[1], blockColor[2]);       // node right orange
+                                drawYTriangleVertex(consumer, x-gridX/2f, y, z+gridZ/2f, true,  blockColor[0], blockColor[1], blockColor[2]);       // right bottom of right node yellowgreenish
                             }
                         } else {
-                            drawSquare(consumer, matrix, x, y, z, blockColor[0], blockColor[1], blockColor[2]);
+                            drawSquare(consumer, x, y, z, blockColor[0], blockColor[1], blockColor[2]);
                         }
                         if (isCircles) {
                             int dx=0;
@@ -224,7 +205,7 @@ public class Grid implements ClientModInitializer
                                 if (nextz>0 && (nextz-1)*(nextz-1)+(nextx*nextx)>circRadSquare-toomuch)
                                     nextz--;
                                 if (nextz<nextx) {
-                                    drawCircleSegment(consumer, matrix, x, dx, dz, y, z, dz, dx, circleColor[0], circleColor[1], circleColor[2]);
+                                    drawCircleSegment(consumer, x, dx, dz, y, z, dz, dx, circleColor[0], circleColor[1], circleColor[2]);
                                     break;
                                 }
 
@@ -236,7 +217,7 @@ public class Grid implements ClientModInitializer
                                             ", one lower dist is "+(nextx*nextx+((nextz-1)*(nextz-1)))
                                             );
                                 }
-                                drawCircleSegment(consumer, matrix, x, dx, nextx, y, z, dz, nextz, circleColor[0], circleColor[1], circleColor[2]);
+                                drawCircleSegment(consumer, x, dx, nextx, y, z, dz, nextz, circleColor[0], circleColor[1], circleColor[2]);
                                 dx=nextx;
                                 dz=nextz;
                             }
@@ -249,23 +230,23 @@ public class Grid implements ClientModInitializer
                     for (int x=baseX-sizeX; x<=baseX+sizeX; x+=gridX) {
                         for (int z=baseZ-sizeZ; z<=baseZ+sizeZ; z+=gridZ) {
                             if (gridX >= gridZ) {
-                                drawLine(consumer, matrix, x+0.5f, x+0.5f-gridZ/4f,                     y, y, z+0.5f, z+0.5f-gridZ/2f,          lineColor[0], lineColor[1], lineColor[2]);   // to LB
-                                drawLine(consumer, matrix, x+0.5f, x+0.5f-gridZ/4f,                     y, y, z+0.5f, z+0.5f+gridZ/2f,          lineColor[0], lineColor[1], lineColor[2]);   // to LT
-                                drawLine(consumer, matrix, x+0.5f, x+0.5f+gridX/2f-gridZ/4f,            y, y, z+0.5f, z+0.5f,                   lineColor[0], lineColor[1], lineColor[2]);   // to R
-                                drawLine(consumer, matrix, x+0.5f+gridX/2f-gridZ/4f, x+0.5f+gridX/2f,   y, y, z+0.5f, z+0.5f-gridZ/2f,          lineColor[0], lineColor[1], lineColor[2]);   // to RB
-                                drawLine(consumer, matrix, x+0.5f+gridX/2f-gridZ/4f, x+0.5f+gridX/2f,   y, y, z+0.5f, z+0.5f+gridZ/2f,          lineColor[0], lineColor[1], lineColor[2]);   // to RT
+                                drawLine(consumer, x+0.5f, x+0.5f-gridZ/4f,                     y, y, z+0.5f, z+0.5f-gridZ/2f,          lineColor[0], lineColor[1], lineColor[2]);   // to LB
+                                drawLine(consumer, x+0.5f, x+0.5f-gridZ/4f,                     y, y, z+0.5f, z+0.5f+gridZ/2f,          lineColor[0], lineColor[1], lineColor[2]);   // to LT
+                                drawLine(consumer, x+0.5f, x+0.5f+gridX/2f-gridZ/4f,            y, y, z+0.5f, z+0.5f,                   lineColor[0], lineColor[1], lineColor[2]);   // to R
+                                drawLine(consumer, x+0.5f+gridX/2f-gridZ/4f, x+0.5f+gridX/2f,   y, y, z+0.5f, z+0.5f-gridZ/2f,          lineColor[0], lineColor[1], lineColor[2]);   // to RB
+                                drawLine(consumer, x+0.5f+gridX/2f-gridZ/4f, x+0.5f+gridX/2f,   y, y, z+0.5f, z+0.5f+gridZ/2f,          lineColor[0], lineColor[1], lineColor[2]);   // to RT
                                 
-                                drawLine(consumer, matrix, x+0.5f+gridX/2f, x+0.5f+gridX-gridZ/4f,      y, y, z+0.5f+gridZ/2f, z+0.5f+gridZ/2f, lineColor[0], lineColor[1], lineColor[2]);   // left stump out
-                                drawLine(consumer, matrix, x+0.5f-gridZ/4f, x+0.5f-gridX/2f,            y, y, z+0.5f+gridZ/2f, z+0.5f+gridZ/2f, lineColor[0], lineColor[1], lineColor[2]);   // right stump out
+                                drawLine(consumer, x+0.5f+gridX/2f, x+0.5f+gridX-gridZ/4f,      y, y, z+0.5f+gridZ/2f, z+0.5f+gridZ/2f, lineColor[0], lineColor[1], lineColor[2]);   // left stump out
+                                drawLine(consumer, x+0.5f-gridZ/4f, x+0.5f-gridX/2f,            y, y, z+0.5f+gridZ/2f, z+0.5f+gridZ/2f, lineColor[0], lineColor[1], lineColor[2]);   // right stump out
                             } else {
-                                drawLine(consumer, matrix, x+0.5f, x+0.5f-gridX/2f,          y, y, z+0.5f, z+0.5f-gridX/4f,                     lineColor[0], lineColor[1], lineColor[2]);   // to LT
-                                drawLine(consumer, matrix, x+0.5f, x+0.5f+gridX/2f,          y, y, z+0.5f, z+0.5f-gridX/4f,                     lineColor[0], lineColor[1], lineColor[2]);   // to RT
-                                drawLine(consumer, matrix, x+0.5f, x+0.5f,                   y, y, z+0.5f, z+0.5f+gridZ/2f-gridX/4f,            lineColor[0], lineColor[1], lineColor[2]);   // to B
-                                drawLine(consumer, matrix, x+0.5f, x+0.5f-gridX/2f,          y, y, z+0.5f+gridZ/2f-gridX/4f, z+0.5f+gridZ/2f,   lineColor[0], lineColor[1], lineColor[2]);   // to LB
-                                drawLine(consumer, matrix, x+0.5f, x+0.5f+gridX/2f,          y, y, z+0.5f+gridZ/2f-gridX/4f, z+0.5f+gridZ/2f,   lineColor[0], lineColor[1], lineColor[2]);   // to RB
+                                drawLine(consumer, x+0.5f, x+0.5f-gridX/2f,          y, y, z+0.5f, z+0.5f-gridX/4f,                     lineColor[0], lineColor[1], lineColor[2]);   // to LT
+                                drawLine(consumer, x+0.5f, x+0.5f+gridX/2f,          y, y, z+0.5f, z+0.5f-gridX/4f,                     lineColor[0], lineColor[1], lineColor[2]);   // to RT
+                                drawLine(consumer, x+0.5f, x+0.5f,                   y, y, z+0.5f, z+0.5f+gridZ/2f-gridX/4f,            lineColor[0], lineColor[1], lineColor[2]);   // to B
+                                drawLine(consumer, x+0.5f, x+0.5f-gridX/2f,          y, y, z+0.5f+gridZ/2f-gridX/4f, z+0.5f+gridZ/2f,   lineColor[0], lineColor[1], lineColor[2]);   // to LB
+                                drawLine(consumer, x+0.5f, x+0.5f+gridX/2f,          y, y, z+0.5f+gridZ/2f-gridX/4f, z+0.5f+gridZ/2f,   lineColor[0], lineColor[1], lineColor[2]);   // to RB
                                 
-                                drawLine(consumer, matrix, x+0.5f+gridX/2f, x+0.5f+gridX/2f, y, y, z+0.5f+gridZ/2f, z+0.5f+gridZ-gridX/4f,      lineColor[0], lineColor[1], lineColor[2]);   // stump up
-                                drawLine(consumer, matrix, x+0.5f+gridX/2f, x+0.5f+gridX/2f, y, y, z+0.5f-gridX/4f, z+0.5f-gridZ/2f,            lineColor[0], lineColor[1], lineColor[2]);   // stump down
+                                drawLine(consumer, x+0.5f+gridX/2f, x+0.5f+gridX/2f, y, y, z+0.5f+gridZ/2f, z+0.5f+gridZ-gridX/4f,      lineColor[0], lineColor[1], lineColor[2]);   // stump up
+                                drawLine(consumer, x+0.5f+gridX/2f, x+0.5f+gridX/2f, y, y, z+0.5f-gridX/4f, z+0.5f-gridZ/2f,            lineColor[0], lineColor[1], lineColor[2]);   // stump down
                             }
                         }
                     }
@@ -276,7 +257,7 @@ public class Grid implements ClientModInitializer
                             double dz=gridX/2.0f;
                             for (double nextx=0.1f; nextx<gridX; nextx+=0.1f) {
                                 double nextz=(Math.sqrt(gridX*gridX/4.0-nextx*nextx));
-                                drawCircleSegment(consumer, matrix, x, dx, nextx, y, z, dz, nextz, circleColor[0], circleColor[1], circleColor[2]);
+                                drawCircleSegment(consumer, x, dx, nextx, y, z, dz, nextz, circleColor[0], circleColor[1], circleColor[2]);
                                 dx=nextx;
                                 dz=nextz;
                                 if (nextz<nextx)
@@ -286,26 +267,25 @@ public class Grid implements ClientModInitializer
                         }   
                     }
                 } else {
-                    drawLineGrid(consumer, matrix, baseX, baseZ, y, sizeX, sizeZ);
+                    drawLineGrid(consumer, baseX, baseZ, y, sizeX, sizeZ);
                 }
             }
-            matrix = new Matrix4f(originalMatrix);
         }
         
         if (showSpawns) {
-            showSpawns(consumer, matrix, player, player.getBlockPos().getX(), player.getBlockPos().getZ());
+            showSpawns(consumer, player, player.getBlockPos().getX(), player.getBlockPos().getZ());
         }
         
         if (showBiomes!=null) {
-            showBiomes(consumer, matrix, player, player.getBlockPos().getX(), player.getBlockPos().getZ());
+            showBiomes(consumer, player, player.getBlockPos().getX(), player.getBlockPos().getZ());
         }
 
         if (showSlimes) {
-            showSlimes(consumer, matrix, player, player.getBlockPos().getX(), player.getBlockPos().getZ());
+            showSlimes(consumer, player, player.getBlockPos().getX(), player.getBlockPos().getZ());
         }
     }
     
-    private void showSpawns(VertexConsumer consumer, Matrix4f stack, Entity player, int baseX, int baseZ) {
+    private void showSpawns(VertexConsumer consumer, Entity player, int baseX, int baseZ) {
         int miny=(int)(player.getY())-64;
         int maxy=(int)(player.getY())+2;
 
@@ -367,15 +347,15 @@ public class Grid implements ClientModInitializer
                 }
 
                 if (display.displaymode == 1) {
-                    drawCross(consumer, stack, x, display.ycoord+1.05f, z, spawnNightColor[0], spawnNightColor[1], spawnNightColor[2], false );
+                    drawCross(consumer, x, display.ycoord+1.05f, z, spawnNightColor[0], spawnNightColor[1], spawnNightColor[2], false );
                 } else if (display.displaymode == 2) {
-                    drawCross(consumer, stack, x, display.ycoord+1.05f, z, spawnDayColor[0], spawnDayColor[1], spawnDayColor[2], true );
+                    drawCross(consumer, x, display.ycoord+1.05f, z, spawnDayColor[0], spawnDayColor[1], spawnDayColor[2], true );
                 }
             }
         }
     }
 
-    private void showSlimes(VertexConsumer consumer, Matrix4f stack, Entity player, int baseX, int baseZ) {
+    private void showSlimes(VertexConsumer consumer, Entity player, int baseX, int baseZ) {
         int miny=(int)(player.getY())-64;
         int maxy=(int)(player.getY())+2;
 
@@ -407,12 +387,12 @@ public class Grid implements ClientModInitializer
                     y = fixY - 1;
                 }
                 // LOGGER.info("drawing slime diamond at {} {} {}", x, y, z);
-                drawDiamond(consumer, stack, x, y+1, z, slimeColor[0], slimeColor[1], slimeColor[2]);
+                drawDiamond(consumer, x, y+1, z, slimeColor[0], slimeColor[1], slimeColor[2]);
             }
         }
     }
     
-    private void showBiomes(VertexConsumer consumer, Matrix4f matrix, Entity player, int baseX, int baseZ) {
+    private void showBiomes(VertexConsumer consumer, Entity player, int baseX, int baseZ) {
         int miny=(int)(player.getY())-16;
         int maxy=(int)(player.getY());
         World playerWorld = player.getWorld();
@@ -439,8 +419,6 @@ public class Grid implements ClientModInitializer
                             y--;
                         }
                         display = new Displaycache((byte)1, y);
-                    } else {
-                        display = null;
                     }
                     biomeCache[x&0xff][z&0xff] = display;
                 } else {
@@ -453,7 +431,7 @@ public class Grid implements ClientModInitializer
                     } else {
                         y=fixY-1;
                     }
-                    drawDiamond(consumer, matrix, x, y+1, z, biomeColor[0], biomeColor[1], biomeColor[2]);
+                    drawDiamond(consumer, x, y+1, z, biomeColor[0], biomeColor[1], biomeColor[2]);
                 }
             }
         }
@@ -463,84 +441,78 @@ public class Grid implements ClientModInitializer
         return block == Blocks.AIR || block == Blocks.CAVE_AIR || block == Blocks.VOID_AIR;
     }
     
-    private void drawLineGrid(VertexConsumer consumer, Matrix4f stack, int baseX, int baseZ, double y, int sizeX, int sizeZ) {
+    private void drawLineGrid(VertexConsumer consumer, int baseX, int baseZ, double y, int sizeX, int sizeZ) {
         for (int x=baseX-sizeX; x<=baseX+sizeX; x+=gridX) {
-            drawLine(consumer, stack, x, x, y, y, baseZ-distance, baseZ+distance, lineColor[0], lineColor[1], lineColor[2]);
+            drawLine(consumer, x, x, y, y, baseZ-distance, baseZ+distance, lineColor[0], lineColor[1], lineColor[2]);
         }
         for (int z=baseZ-sizeZ; z<=baseZ+sizeZ; z+=gridZ) {
-            drawLine(consumer, stack, baseX-distance, baseX+distance, y, y, z, z, lineColor[0], lineColor[1], lineColor[2]);
+            drawLine(consumer, baseX-distance, baseX+distance, y, y, z, z, lineColor[0], lineColor[1], lineColor[2]);
         }
     }
     
-    private void drawSquare(VertexConsumer consumer, Matrix4f stack, double x, double y, double z, float r, float g, float b) {
-        drawLine(consumer, stack, x+0.3f, x+0.7f, y, y, z+0.3f, z+0.3f, r, g, b);
-        drawLine(consumer, stack, x+0.7f, x+0.7f, y, y, z+0.3f, z+0.7f, r, g, b);
-        drawLine(consumer, stack, x+0.7f, x+0.3f, y, y, z+0.7f, z+0.7f, r, g, b);
-        drawLine(consumer, stack, x+0.3f, x+0.3f, y, y, z+0.7f, z+0.3f, r, g, b);
+    private void drawSquare(VertexConsumer consumer, double x, double y, double z, float r, float g, float b) {
+        drawLine(consumer, x+0.3f, x+0.7f, y, y, z+0.3f, z+0.3f, r, g, b);
+        drawLine(consumer, x+0.7f, x+0.7f, y, y, z+0.3f, z+0.7f, r, g, b);
+        drawLine(consumer, x+0.7f, x+0.3f, y, y, z+0.7f, z+0.7f, r, g, b);
+        drawLine(consumer, x+0.3f, x+0.3f, y, y, z+0.7f, z+0.3f, r, g, b);
     }
     
-    private void drawXTriangleVertex(VertexConsumer consumer, Matrix4f stack, double x, double y, double z, boolean inverted, float r, float g, float b) {
+    private void drawXTriangleVertex(VertexConsumer consumer, double x, double y, double z, boolean inverted, float r, float g, float b) {
         double xMult = (inverted ? 1 : -1);
-        drawLine(consumer, stack, x+0.5f, x+0.5f+ 0.5f*xMult, y, y, z+0.5f, z+0.5f, r, g, b);
-        drawLine(consumer, stack, x+0.5f, x+0.5f-0.25f*xMult, y, y, z+0.5f, z+1.0f, r, g, b);
-        drawLine(consumer, stack, x+0.5f, x+0.5f-0.25f*xMult, y, y, z+0.5f, z+0.0f, r, g, b);
+        drawLine(consumer, x+0.5f, x+0.5f+ 0.5f*xMult, y, y, z+0.5f, z+0.5f, r, g, b);
+        drawLine(consumer, x+0.5f, x+0.5f-0.25f*xMult, y, y, z+0.5f, z+1.0f, r, g, b);
+        drawLine(consumer, x+0.5f, x+0.5f-0.25f*xMult, y, y, z+0.5f, z+0.0f, r, g, b);
     }
 
-    private void drawYTriangleVertex(VertexConsumer consumer, Matrix4f stack, double x, double y, double z, boolean inverted, float r, float g, float b) {
+    private void drawYTriangleVertex(VertexConsumer consumer, double x, double y, double z, boolean inverted, float r, float g, float b) {
         double xMult = (inverted ? 1 : -1);
-        drawLine(consumer, stack, x+0.5f, x+0.5f, y, y, z+0.5f, z+0.5f+ 0.5f*xMult, r, g, b);        
-        drawLine(consumer, stack, x+0.5f, x+1.0f, y, y, z+0.5f, z+0.5f-0.25f*xMult, r, g, b);
-        drawLine(consumer, stack, x+0.5f, x+0.0f, y, y, z+0.5f, z+0.5f-0.25f*xMult, r, g, b);
+        drawLine(consumer, x+0.5f, x+0.5f, y, y, z+0.5f, z+0.5f+ 0.5f*xMult, r, g, b);
+        drawLine(consumer, x+0.5f, x+1.0f, y, y, z+0.5f, z+0.5f-0.25f*xMult, r, g, b);
+        drawLine(consumer, x+0.5f, x+0.0f, y, y, z+0.5f, z+0.5f-0.25f*xMult, r, g, b);
     }
 
     
-    private void drawCircleSegment(VertexConsumer consumer, Matrix4f stack, double xc, double x1, double x2, double y, double zc, double z1, double z2, float red, float green, float blue) {
-        drawLine(consumer, stack, xc+x1+0.5f, xc+x2+0.5f, y, y, zc+z1+0.5f, zc+z2+0.5f, red, green, blue);
-        drawLine(consumer, stack, xc-x1+0.5f, xc-x2+0.5f, y, y, zc+z1+0.5f, zc+z2+0.5f, red, green, blue);
-        drawLine(consumer, stack, xc+x1+0.5f, xc+x2+0.5f, y, y, zc-z1+0.5f, zc-z2+0.5f, red, green, blue);
-        drawLine(consumer, stack, xc-x1+0.5f, xc-x2+0.5f, y, y, zc-z1+0.5f, zc-z2+0.5f, red, green, blue);
-        drawLine(consumer, stack, xc+z1+0.5f, xc+z2+0.5f, y, y, zc+x1+0.5f, zc+x2+0.5f, red, green, blue);
-        drawLine(consumer, stack, xc-z1+0.5f, xc-z2+0.5f, y, y, zc+x1+0.5f, zc+x2+0.5f, red, green, blue);
-        drawLine(consumer, stack, xc+z1+0.5f, xc+z2+0.5f, y, y, zc-x1+0.5f, zc-x2+0.5f, red, green, blue);
-        drawLine(consumer, stack, xc-z1+0.5f, xc-z2+0.5f, y, y, zc-x1+0.5f, zc-x2+0.5f, red, green, blue);
+    private void drawCircleSegment(VertexConsumer consumer, double xc, double x1, double x2, double y, double zc, double z1, double z2, float red, float green, float blue) {
+        drawLine(consumer, xc+x1+0.5f, xc+x2+0.5f, y, y, zc+z1+0.5f, zc+z2+0.5f, red, green, blue);
+        drawLine(consumer, xc-x1+0.5f, xc-x2+0.5f, y, y, zc+z1+0.5f, zc+z2+0.5f, red, green, blue);
+        drawLine(consumer, xc+x1+0.5f, xc+x2+0.5f, y, y, zc-z1+0.5f, zc-z2+0.5f, red, green, blue);
+        drawLine(consumer, xc-x1+0.5f, xc-x2+0.5f, y, y, zc-z1+0.5f, zc-z2+0.5f, red, green, blue);
+        drawLine(consumer, xc+z1+0.5f, xc+z2+0.5f, y, y, zc+x1+0.5f, zc+x2+0.5f, red, green, blue);
+        drawLine(consumer, xc-z1+0.5f, xc-z2+0.5f, y, y, zc+x1+0.5f, zc+x2+0.5f, red, green, blue);
+        drawLine(consumer, xc+z1+0.5f, xc+z2+0.5f, y, y, zc-x1+0.5f, zc-x2+0.5f, red, green, blue);
+        drawLine(consumer, xc-z1+0.5f, xc-z2+0.5f, y, y, zc-x1+0.5f, zc-x2+0.5f, red, green, blue);
     }
 
-    // Keep these as fields in your class to prevent lag (GC pressure)
-    private final Matrix3f normalMatrix = new Matrix3f();
-    private final Vector3f transformedNormal = new Vector3f();
-
-    private void drawLine(VertexConsumer consumer, Matrix4f model, double x1, double x2, double y1, double y2, double z1, double z2, float red, float green, float blue) {
-        // 1. Prepare the 3x3 normal matrix from your 4f model
-        model.normal(normalMatrix);
-
+    private void drawLine(VertexConsumer consumer, double x1, double x2, double y1, double y2, double z1, double z2, float red, float green, float blue) {
         double dx = x2 - x1;
         double dy = y2 - y1;
         double dz = z2 - z1;
         double invDist = MathHelper.inverseSqrt(dx*dx + dy*dy + dz*dz);
 
-        // 2. Normalize the direction and transform it by our matrix
-        // We treat the line direction as the normal for lighting purposes
-        transformedNormal.set((float)(dx * invDist), (float)(dy * invDist), (float)(dz * invDist))
-                .mul(normalMatrix);
+        if (invDist < 1000) {
+            dx *= invDist;
+            dy *= invDist;
+            dz *= invDist;
+        }
 
         // 3. Pass the resulting 3 floats to the consumer
-        consumer.vertex(model, (float)(x1 - cameraX), (float)(y1 - cameraY), (float)(z1 - cameraZ))
+        consumer.vertex((float)(x1 - cameraX), (float)(y1 - cameraY), (float)(z1 - cameraZ))
                 .color(red, green, blue, 1.0f)
-                .normal(transformedNormal.x(), transformedNormal.y(), transformedNormal.z());
+                .normal((float)dx, (float)dy, (float)dz);
 
-        consumer.vertex(model, (float)(x2 - cameraX), (float)(y2 - cameraY), (float)(z2 - cameraZ))
+        consumer.vertex((float)(x2 - cameraX), (float)(y2 - cameraY), (float)(z2 - cameraZ))
                 .color(red, green, blue, 1.0f)
-                .normal(transformedNormal.x(), transformedNormal.y(), transformedNormal.z());
+                .normal((float)dx, (float)dy, (float)dz);
     }
     
-    private void drawCross(VertexConsumer consumer, Matrix4f matrix, double x, double y, double z, float red, float green, float blue, boolean twoLegs) {
-        drawLine(consumer, matrix, x+0.3f, x+0.7f, y, y, z+0.3f, z+0.7f, red, green, blue);
+    private void drawCross(VertexConsumer consumer, double x, double y, double z, float red, float green, float blue, boolean twoLegs) {
+        drawLine(consumer, x+0.3f, x+0.7f, y, y, z+0.3f, z+0.7f, red, green, blue);
         if (twoLegs) {
-            drawLine(consumer, matrix, x+0.3f, x+0.7f, y, y, z+0.7f, z+0.3f, red, green, blue);
+            drawLine(consumer, x+0.3f, x+0.7f, y, y, z+0.7f, z+0.3f, red, green, blue);
         }
     }
     
-    private void drawDiamond(VertexConsumer consumer, Matrix4f matrix, double x, double y, double z, float red, float green, float blue) {
+    private void drawDiamond(VertexConsumer consumer, double x, double y, double z, float red, float green, float blue) {
         double x1 = x+0.3f;
         double x2 = x+0.5f;
         double x3 = x+0.7f;
@@ -549,10 +521,10 @@ public class Grid implements ClientModInitializer
         double z3 = z+0.7f;
         double y1 = y+0.05f;
         
-        drawLine(consumer, matrix, x1, x2, y1, y1, z2, z1, red, green, blue);
-        drawLine(consumer, matrix, x2, x3, y1, y1, z1, z2, red, green, blue);
-        drawLine(consumer, matrix, x3, x2, y1, y1, z2, z3, red, green, blue);
-        drawLine(consumer, matrix, x2, x1, y1, y1, z3, z2, red, green, blue);
+        drawLine(consumer, x1, x2, y1, y1, z2, z1, red, green, blue);
+        drawLine(consumer, x2, x3, y1, y1, z1, z2, red, green, blue);
+        drawLine(consumer, x3, x2, y1, y1, z2, z3, red, green, blue);
+        drawLine(consumer, x2, x1, y1, y1, z3, z2, red, green, blue);
     }
     
     private void cmdShow(ClientPlayerEntity sender) {
@@ -570,7 +542,7 @@ public class Grid implements ClientModInitializer
             int level=1;
             try {
                 level=Integer.parseInt(newLevel);
-            } catch (NumberFormatException | NullPointerException ex) {
+            } catch (NumberFormatException | NullPointerException ignored) {
                 ;
             }
             if (level<=0 || level>15)
@@ -889,7 +861,8 @@ public class Grid implements ClientModInitializer
         }
         if (settingsRequested || gridSettings.wasPressed()) {
             settingsRequested = false;
-            MinecraftClient.getInstance().setScreen(new ConfigScreen());
+            MinecraftClient client = MinecraftClient.getInstance();
+            client.setScreen(ConfigScreen.getConfigScreen(client.currentScreen));
         }
     }
 }
