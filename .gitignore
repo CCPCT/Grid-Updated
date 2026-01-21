@@ -1,9 +1,6 @@
 build
-run
-gradle
 .gradle
 .nb-gradle
-gradlew
-mcsrc/
-mcsrc.1.14.4/
-mcsrc.1.15pre6/
+.nb-gradle-properties
+run
+.idea
