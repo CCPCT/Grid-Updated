@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         # Define your versions here
-        mc_version: ["1.21.6"]
+        mc_version: ["1.21.9"]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
