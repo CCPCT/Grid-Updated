@@ -499,10 +499,12 @@ public class Grid implements ClientModInitializer
         // 3. Pass the resulting 3 floats to the consumer
         consumer.vertex((float)(x1 - cameraX), (float)(y1 - cameraY), (float)(z1 - cameraZ))
                 .color(red, green, blue, 1.0f)
+                .lineWidth(2f)
                 .normal((float)dx, (float)dy, (float)dz);
 
         consumer.vertex((float)(x2 - cameraX), (float)(y2 - cameraY), (float)(z2 - cameraZ))
                 .color(red, green, blue, 1.0f)
+                .lineWidth(2f)
                 .normal((float)dx, (float)dy, (float)dz);
     }
     

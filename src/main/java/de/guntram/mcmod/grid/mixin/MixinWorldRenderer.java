@@ -39,7 +39,7 @@ public class MixinWorldRenderer {
         double x = cameraPos.getX();
         double y = cameraPos.getY();
         double z = cameraPos.getZ();
-        VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEntityVertexConsumers();
-        Grid.instance.renderOverlay(MinecraftClient.getInstance().gameRenderer.getCamera().getLastTickProgress(),immediate.getBuffer(RenderLayers.LINES) , x, y, z);
+        VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEffectVertexConsumers();
+        Grid.instance.renderOverlay(MinecraftClient.getInstance().gameRenderer.getCamera().getLastTickProgress(),immediate.getBuffer(RenderLayers.LINES_TRANSLUCENT) , x, y, z);
     }
 }

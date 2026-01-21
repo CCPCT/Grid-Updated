@@ -28,7 +28,7 @@ if (propsFile.exists()) {
         project.ext.set(key, val)
     }
 } else {
-    throw new GradleException("Could not find version config: ${propsFile}")
+    throw new Exception("Could not find version config: ${propsFile}")
 }
 
 version = "${project.minecraft_version}-${project.projectVersion}"
