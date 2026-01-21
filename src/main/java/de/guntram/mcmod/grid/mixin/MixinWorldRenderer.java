@@ -3,10 +3,12 @@ package de.guntram.mcmod.grid.mixin;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import de.guntram.mcmod.grid.Grid;
 import net.minecraft.client.render.*;
+import net.minecraft.client.util.Handle;
 import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemGroup.DisplayContext;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.Profiler;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Final;
@@ -20,19 +22,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinWorldRenderer {
     
     @Shadow @Final private BufferBuilderStorage bufferBuilders;
-    
-    @Inject(method="render", 
-            at=@At(value="INVOKE_STRING",
-                   target="Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
-                   args= { "ldc=destroyProgress" }
-            ))
 
-    public void renderGrid(ObjectAllocator allocator, RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, Matrix4f positionMatrix, Matrix4f projectionMatrix, GpuBufferSlice fog, Vector4f fogColor, boolean shouldRenderSky, CallbackInfo ci) {
+//    @Inject(method="renderMain",
+//            at=@At(value="INVOKE_STRING",
+//                   target="Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
+//                   args= { "ldc=destroyProgress" }
+//            ))
+    @Inject(
+            method = "method_62214",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
+                    args = "ldc=destroyProgress"
+            ),
+            remap = false // Critical: synthetic methods aren't in the mapping files
+    )
+    public void renderGrid(GpuBufferSlice gpuBufferSlice, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Handle handle, Handle handle2, boolean bl, Frustum frustum, Handle handle3, Handle handle4, CallbackInfo ci) {
               Vec3d vec3d = camera.getPos();
         double x = vec3d.getX();
         double y = vec3d.getY();
         double z = vec3d.getZ();
         VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEntityVertexConsumers();
-        Grid.instance.renderOverlay(tickCounter.getDynamicDeltaTicks(), stack, immediate.getBuffer(RenderLayer.getLines()), x, y, z);
+        Grid.instance.renderOverlay(renderTickCounter.getDynamicDeltaTicks(), matrix4f, immediate.getBuffer(RenderLayer.getLines()), x, y, z);
     }
 }

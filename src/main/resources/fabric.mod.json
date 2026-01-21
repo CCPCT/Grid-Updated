@@ -5,7 +5,7 @@
     "environment": "client",
     "entrypoints": {
         "client": [ "de.guntram.mcmod.grid.Grid" ],
-        "modmenu": [ "de.guntram.mcmod.grid.MMConfigurationHandler" ]
+        "modmenu": [ "de.guntram.mcmod.grid.modConfig.ModMenuHandler" ]
     },
     "mixins": [
       	"mixins.grid.json"
