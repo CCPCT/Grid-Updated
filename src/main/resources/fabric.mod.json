@@ -1,0 +1,31 @@
+{
+    "schemaVersion": 1,
+    "id": "grid",
+    "version": "${version}",
+    "environment": "client",
+    "entrypoints": {
+        "client": [ "de.guntram.mcmod.grid.Grid" ],
+        "modmenu": [ "de.guntram.mcmod.grid.MMConfigurationHandler" ]
+    },
+    "mixins": [
+      	"mixins.grid.json"
+    ],
+    "depends": {
+        "fabric-api": "*",
+        "fabricloader": "*",
+        "fabric": "*",
+        "minecraft": "${minecraft_range}",
+        "java": ">=21",
+        "modmenu": "*",
+        "cloth-config": "*"
+    },
+    "name": "Grid",
+    "description": "Markers to help with counting blocks, building circles, and showing possible mob spawn locations",
+    "icon": "icon.png",
+    "authors": [ "Giselbaer", "CCPCT" ],
+    "contact": {
+        "homepage": "https://www.curseforge.com/minecraft/mc-mods/grid",
+        "sources": "https://github.com/gbl/Grid",
+        "issues": "https://github.com/gbl/Grid/issues"
+    }
+}

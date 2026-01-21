@@ -1,0 +1,12 @@
+{
+    "required": true,
+    "package": "de.guntram.mcmod.grid.mixin",
+    "refmap": "Grid-refmap.json",
+    "minVersion": "0.6",
+    "client": [
+        "MixinWorldRenderer"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
