@@ -154,8 +154,8 @@ public class Grid implements ClientModInitializer
         int playerZ=(int) Math.floor(player.getZ());
         int playerXShift=Math.floorMod(playerX, gridX);
         int playerZShift=Math.floorMod(playerZ, gridZ);
-        int baseX=playerX-playerXShift;
-        int baseZ=playerZ-playerZShift;
+        int baseX=playerX-playerXShift+offsetX;
+        int baseZ=playerZ-playerZShift+offsetZ;
         int sizeX=Math.max((distance/gridX)*gridX, 2*gridX);
         int sizeZ=Math.max((distance/gridZ)*gridZ, 2*gridZ);
         if (playerXShift > sizeX/2) { baseX += gridX; }
