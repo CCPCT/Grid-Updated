@@ -4,8 +4,9 @@
     <bytecodeTargetLevel target="21" />
   </component>
   <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_STRING" value="-AoutRefMapFile=$PROJECT_DIR$/build/classes/java/main/Grid-refmap.json -AdefaultObfuscationEnv=named:intermediary -Aquiet=true -AoutMapFileNamedIntermediary=$PROJECT_DIR$/build/loom-cache/mixin-map-net.fabricmc.yarn.1_21_6.1.21.6+build.1-v2.main.tiny -AinMapFileNamedIntermediary=$USER_HOME$/.gradle/caches/fabric-loom/1.21.6/net.fabricmc.yarn.1_21_6.1.21.6+build.1-v2/mappings.tiny" />
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-AoutRefMapFile=D:\java\Grid-Updated\build\classes\java\main\Grid-refmap.json -AdefaultObfuscationEnv=named:intermediary -Aquiet=true -AoutMapFileNamedIntermediary=D:\java\Grid-Updated\build\loom-cache\mixin-map-net.fabricmc.yarn.1_21_6.1.21.6+build.1-v2.main.tiny -AinMapFileNamedIntermediary=C:\Users\User\.gradle\caches\fabric-loom\1.21.6\net.fabricmc.yarn.1_21_6.1.21.6+build.1-v2\mappings.tiny" />
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Grid-Updated.test" options="-AoutRefMapFile=D:\java\Grid-Updated\build\classes\java\test\test-Grid-refmap.json -AdefaultObfuscationEnv=named:intermediary -Aquiet=true -AoutMapFileNamedIntermediary=D:\java\Grid-Updated\build\loom-cache\mixin-map-net.fabricmc.yarn.1_21_6.1.21.6+build.1-v2.test.tiny -AinMapFileNamedIntermediary=C:\Users\User\.gradle\caches\fabric-loom\1.21.6\net.fabricmc.yarn.1_21_6.1.21.6+build.1-v2\mappings.tiny" />
       <module name="Grid.test" options="-AoutRefMapFile=$PROJECT_DIR$/build/classes/java/test/test-Grid-refmap.json -AdefaultObfuscationEnv=named:intermediary -Aquiet=true -AoutMapFileNamedIntermediary=$PROJECT_DIR$/build/loom-cache/mixin-map-net.fabricmc.yarn.1_21_6.1.21.6+build.1-v2.test.tiny -AinMapFileNamedIntermediary=$USER_HOME$/.gradle/caches/fabric-loom/1.21.6/net.fabricmc.yarn.1_21_6.1.21.6+build.1-v2/mappings.tiny" />
     </option>
   </component>

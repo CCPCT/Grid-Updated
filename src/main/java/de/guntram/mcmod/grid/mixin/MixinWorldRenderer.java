@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WorldRenderer.class)
@@ -23,21 +24,17 @@ public class MixinWorldRenderer {
     
     @Shadow @Final private BufferBuilderStorage bufferBuilders;
 
-    @Inject(
-            method = "method_62214",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
-                    args = "ldc=destroyProgress"
-            ),
-            remap = false // Critical: synthetic methods aren't in the mapping files
+    @Redirect(
+            method = "renderMain",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/FramePass;setRenderer(Ljava/lang/Runnable;)V")
     )
-    public void renderGrid(GpuBufferSlice gpuBufferSlice, RenderTickCounter renderTickCounter, Camera camera, Profiler profiler, Matrix4f matrix4f, Handle handle, Handle handle2, boolean bl, Frustum frustum, Handle handle3, Handle handle4, CallbackInfo ci) {
-              Vec3d vec3d = camera.getPos();
-        double x = vec3d.getX();
-        double y = vec3d.getY();
-        double z = vec3d.getZ();
-        VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEntityVertexConsumers();
-        Grid.instance.renderOverlay(renderTickCounter.getDynamicDeltaTicks(), immediate.getBuffer(RenderLayer.getLines()), x, y, z);
+    private void wrapAndInject(FramePass instance, Runnable originalLambda, FrameGraphBuilder fgb, Frustum frustum, Camera camera, Matrix4f posMat, GpuBufferSlice fog, boolean outline, boolean entityOutline, RenderTickCounter tick) {
+        instance.setRenderer(() -> {
+            originalLambda.run(); // Run the original Minecraft code
+
+            Vec3d pos = camera.getPos();
+            var buffer = this.bufferBuilders.getEntityVertexConsumers().getBuffer(RenderLayer.getLines());
+            Grid.instance.renderOverlay(tick.getDynamicDeltaTicks(), buffer, pos.x, pos.y, pos.z);
+        });
     }
 }
