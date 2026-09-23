@@ -13,9 +13,8 @@
     "depends": {
         "fabric-api": "*",
         "fabricloader": "*",
-        "fabric": "*",
         "minecraft": "${minecraft_range}",
-        "java": ">=21",
+        "java": ">=25",
         "modmenu": "*",
         "cloth-config": "*"
     },

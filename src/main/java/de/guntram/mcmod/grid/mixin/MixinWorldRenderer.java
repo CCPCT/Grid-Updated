@@ -1,17 +1,27 @@
 package de.guntram.mcmod.grid.mixin;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
+import com.mojang.blaze3d.resource.GraphicsResourceAllocator;
+import com.mojang.blaze3d.resource.ResourceHandle;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import de.guntram.mcmod.grid.Grid;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.state.WorldRenderState;
-import net.minecraft.client.util.Handle;
-import net.minecraft.client.util.ObjectAllocator;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemGroup.DisplayContext;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.profiler.Profiler;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,27 +29,26 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.client.renderer.LevelRenderer;
 
-@Mixin(WorldRenderer.class)
+@Mixin(LevelRenderer.class)
 public class MixinWorldRenderer {
-    
-    @Shadow @Final private BufferBuilderStorage bufferBuilders;
+
+    @Shadow
+    @Final
+    private RenderBuffers renderBuffers;
 
     @Inject(
-            method = "method_62214",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
-                    args = "ldc=destroyProgress"
-            ),
-            remap = false // Critical: synthetic methods aren't in the mapping files
+            method = "lambda$addMainPass$0",
+            at = @At("HEAD")
     )
-    public void renderGrid(GpuBufferSlice gpuBufferSlice, WorldRenderState worldRenderState, Profiler profiler, Matrix4f matrix4f, Handle handle, Handle handle2, boolean bl, Handle handle3, Handle handle4, CallbackInfo ci) {
-        Vec3d cameraPos = worldRenderState.cameraRenderState.pos;
-        double x = cameraPos.getX();
-        double y = cameraPos.getY();
-        double z = cameraPos.getZ();
-        VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEffectVertexConsumers();
-        Grid.instance.renderOverlay(MinecraftClient.getInstance().gameRenderer.getCamera().getLastTickProgress(),immediate.getBuffer(RenderLayers.LINES_TRANSLUCENT) , x, y, z);
+    public void renderGrid(GpuBufferSlice terrainFog, LevelRenderState levelRenderState, ProfilerFiller profiler, ChunkSectionsToRender chunkSectionsToRender, ResourceHandle entityOutlineTarget, ResourceHandle translucentTarget, ResourceHandle mainTarget, ResourceHandle itemEntityTarget, ResourceHandle particleTarget, boolean renderOutline, Matrix4fc modelViewMatrix, CallbackInfo ci) {
+        Vec3 cameraPos = levelRenderState.cameraRenderState.pos;
+        double x = cameraPos.x();
+        double y = cameraPos.y();
+        double z = cameraPos.z();
+
+        VertexConsumer vertexConsumer = this.renderBuffers.bufferSource().getBuffer(RenderTypes.linesTranslucent());
+        Grid.instance.renderOverlay(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false),vertexConsumer , x, y, z);
     }
 }
