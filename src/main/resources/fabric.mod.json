@@ -23,8 +23,8 @@
     "icon": "icon.png",
     "authors": [ "Giselbaer", "CCPCT" ],
     "contact": {
-        "homepage": "https://www.curseforge.com/minecraft/mc-mods/grid",
-        "sources": "https://github.com/gbl/Grid",
-        "issues": "https://github.com/gbl/Grid/issues"
+        "homepage": "https://modrinth.com/mod/grid-updated",
+        "sources": "https://github.com/CCPCT/Grid-Updated",
+        "issues": "https://github.com/CCPCT/Grid-Updated/issues"
     }
 }
