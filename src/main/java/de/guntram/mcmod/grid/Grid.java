@@ -45,7 +45,6 @@ import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
-import static org.lwjgl.glfw.GLFW.GLFW_DONT_CARE;
 
 public class Grid implements ClientModInitializer
 {
@@ -859,11 +858,11 @@ public class Grid implements ClientModInitializer
 
     public void setKeyBindings() {
         final KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("grid", "keys"));
-        KeyMappingHelper.registerKeyMapping(showHide = new KeyMapping("key.grid.showhide", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
-        KeyMappingHelper.registerKeyMapping(gridHere = new KeyMapping("key.grid.here", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
-        KeyMappingHelper.registerKeyMapping(gridFixY = new KeyMapping("key.grid.fixy", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
-        KeyMappingHelper.registerKeyMapping(gridSpawns = new KeyMapping("key.grid.spawns", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
-        KeyMappingHelper.registerKeyMapping(gridSettings = new KeyMapping("key.grid.settings", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
+        KeyMappingHelper.registerKeyMapping(showHide = new KeyMapping("key.grid.showhide", InputConstants.Type.KEYBOARD, 0, category));
+        KeyMappingHelper.registerKeyMapping(gridHere = new KeyMapping("key.grid.here", InputConstants.Type.KEYBOARD, 0, category));
+        KeyMappingHelper.registerKeyMapping(gridFixY = new KeyMapping("key.grid.fixy", InputConstants.Type.KEYBOARD, 0, category));
+        KeyMappingHelper.registerKeyMapping(gridSpawns = new KeyMapping("key.grid.spawns", InputConstants.Type.KEYBOARD, 0, category));
+        KeyMappingHelper.registerKeyMapping(gridSettings = new KeyMapping("key.grid.settings", InputConstants.Type.KEYBOARD, 0, category));
         ClientTickEvents.END_CLIENT_TICK.register(e->processKeyBinds());
     }
 
