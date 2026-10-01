@@ -843,11 +843,11 @@ public class Grid implements ClientModInitializer
 
     public void setKeyBindings() {
         final KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("grid", "keys"));
-        KeyMappingHelper.registerKeyMapping(showHide = new KeyMapping("key.grid.showhide", InputConstants.Type.KEYSYM, 0, category));
-        KeyMappingHelper.registerKeyMapping(gridHere = new KeyMapping("key.grid.here", InputConstants.Type.KEYSYM, 0, category));
-        KeyMappingHelper.registerKeyMapping(gridFixY = new KeyMapping("key.grid.fixy", InputConstants.Type.KEYSYM, 0, category));
-        KeyMappingHelper.registerKeyMapping(gridSpawns = new KeyMapping("key.grid.spawns", InputConstants.Type.KEYSYM, 0, category));
-        KeyMappingHelper.registerKeyMapping(gridSettings = new KeyMapping("key.grid.settings", InputConstants.Type.KEYSYM, 0, category));
+        KeyMappingHelper.registerKeyMapping(showHide = new KeyMapping("key.grid.showhide", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
+        KeyMappingHelper.registerKeyMapping(gridHere = new KeyMapping("key.grid.here", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
+        KeyMappingHelper.registerKeyMapping(gridFixY = new KeyMapping("key.grid.fixy", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
+        KeyMappingHelper.registerKeyMapping(gridSpawns = new KeyMapping("key.grid.spawns", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
+        KeyMappingHelper.registerKeyMapping(gridSettings = new KeyMapping("key.grid.settings", InputConstants.Type.KEYSYM, GLFW_DONT_CARE, category));
         ClientTickEvents.END_CLIENT_TICK.register(e->processKeyBinds());
     }
 
