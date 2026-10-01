@@ -1,6 +1,7 @@
 package de.guntram.mcmod.grid;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import de.guntram.mcmod.grid.modConfig.ConfigScreen;
 import de.guntram.mcmod.grid.modConfig.ModConfig;
@@ -8,27 +9,28 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,7 +45,7 @@ import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_DONT_CARE;
 
 public class Grid implements ClientModInitializer
 {
@@ -122,6 +124,20 @@ public class Grid implements ClientModInitializer
         setKeyBindings();
         registerCommands();
         LOGGER = LogManager.getLogger(MODNAME);
+
+        LevelRenderEvents.COLLECT_SUBMITS.register(context -> {
+            // Adjust for the camera position to render relative to world space
+            Vec3 cameraPos = context.levelState().cameraRenderState.pos;
+            PoseStack poseStack = context.poseStack();
+
+
+
+            context.submitNodeCollector().submitCustomGeometry(poseStack, RenderTypes.linesTranslucent(), (PoseStack.Pose pose, VertexConsumer buffer) -> {
+                // First Vertex
+                renderOverlay(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false), buffer, cameraPos.x(), cameraPos.y(), cameraPos.z());
+            });
+
+        });
     }
     
     private float[] colorToRgb(int color) {
@@ -531,17 +547,17 @@ public class Grid implements ClientModInitializer
         drawLine(consumer, x3, x2, y1, y1, z2, z3, red, green, blue);
         drawLine(consumer, x2, x1, y1, y1, z3, z2, red, green, blue);
     }
-    
+
     private void cmdShow(LocalPlayer sender) {
         showGrid = true;
         sender.sendSystemMessage(Component.literal(I18n.get("msg.gridshown", (Object[]) null)));
     }
-    
+
     private void cmdHide(LocalPlayer sender) {
         showGrid = false;
         sender.sendSystemMessage(Component.literal(I18n.get("msg.gridhidden", (Object[]) null)));
     }
-    
+
     private void cmdSpawns(LocalPlayer sender, String newLevel) {
         if (newLevel != null) {
             int level=1;
@@ -562,17 +578,17 @@ public class Grid implements ClientModInitializer
             showSpawns=true;
         }
     }
-    
+
     private void cmdLines(LocalPlayer sender) {
         showGrid = true; isBlocks = false;
         sender.sendSystemMessage(Component.literal(I18n.get("msg.gridlines", (Object[]) null)));
     }
-    
+
     private void cmdBlocks(LocalPlayer sender) {
         showGrid = true; isBlocks = true;
         sender.sendSystemMessage(Component.literal(I18n.get("msg.gridblocks", (Object[]) null)));
     }
-    
+
     private void cmdCircles(LocalPlayer sender) {
         if (isCircles) {
             isCircles = false;
@@ -584,18 +600,18 @@ public class Grid implements ClientModInitializer
             sender.sendSystemMessage(Component.literal(I18n.get("msg.gridcircles", (Object[]) null)));
         }
     }
-    
+
     private void cmdHere(LocalPlayer sender) {
         int playerX=(int) Math.floor(sender.getX());
         int playerZ=(int) Math.floor(sender.getZ());
         int playerXShift=Math.floorMod(playerX, gridX);
-        int playerZShift=Math.floorMod(playerZ, gridZ);                
+        int playerZShift=Math.floorMod(playerZ, gridZ);
         offsetX=playerXShift;
         offsetZ=playerZShift;
         showGrid=true;
         sender.sendSystemMessage(Component.literal(I18n.get("msg.gridaligned", (Object[]) null)));
     }
-    
+
     private void cmdHex(LocalPlayer sender) {
         if (isHexes) {
             isHexes = false;
@@ -605,7 +621,7 @@ public class Grid implements ClientModInitializer
             showGrid = true;
         }
     }
-    
+
     private void cmdFixy(LocalPlayer sender) {
         if (fixY==Y_FOR_FLOAT) {
             cmdFixy(sender, (int)Math.floor(sender.getY()));
@@ -619,19 +635,19 @@ public class Grid implements ClientModInitializer
             fixY=level;
             sender.sendSystemMessage(Component.literal(I18n.get("msg.gridheightfixed", fixY)));
     }
-    
+
     private void cmdChunks(LocalPlayer sender) {
         offsetX=offsetZ=0;
         gridX=gridZ=16;
         showGrid=true;
         sender.sendSystemMessage(Component.literal(I18n.get("msg.gridchunks")));
     }
-    
+
     private void cmdDistance(LocalPlayer sender, int distance) {
         this.distance=distance;
         sender.sendSystemMessage(Component.literal(I18n.get("msg.griddistance", distance)));
     }
-    
+
     private void cmdX(LocalPlayer sender, int coord) {
         cmdXZ(sender, coord, gridZ);
     }
@@ -639,7 +655,7 @@ public class Grid implements ClientModInitializer
     private void cmdZ(LocalPlayer sender, int coord) {
         cmdXZ(sender, gridX, coord);
     }
-    
+
     private void cmdXZ(LocalPlayer sender, int newX, int newZ) {
         if (newX>0 && newZ>0) {
             gridX=newX;
@@ -675,7 +691,7 @@ public class Grid implements ClientModInitializer
             showSlimes = false;
         }
     }
-    
+
     private void cmdBiome(LocalPlayer sender, String biome) {
         if (biome == null  || biome.isEmpty()) {
             sender.sendSystemMessage(Component.literal("Cancelled biome display"));
@@ -868,7 +884,7 @@ public class Grid implements ClientModInitializer
         if (settingsRequested || gridSettings.consumeClick()) {
             settingsRequested = false;
             Minecraft client = Minecraft.getInstance();
-            client.setScreen(ConfigScreen.getConfigScreen(client.screen));
+            client.gui.setScreen(ConfigScreen.getConfigScreen(client.gui.screen()));
         }
     }
 }
