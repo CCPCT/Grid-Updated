@@ -70,7 +70,7 @@ public class Grid implements ClientModInitializer
     private boolean showSlimes = false;
     private long slimeSeed = 0;
     private Logger LOGGER;
-    
+
     private float[] blockColor      = colorToRgb(0x8080ff);
     private float[] lineColor       = colorToRgb(0xff8000);
     private float[] circleColor     = colorToRgb(0x00e480);
@@ -412,9 +412,13 @@ public class Grid implements ClientModInitializer
             for (int z=baseZ-distance; z<=baseZ+distance; z++) {
                 Displaycache display = null;
                 if (alwaysUpdate || x == biomeUpdateX) {
+
                     // 2 lines stolen from DebugHud.java
                     Holder<Biome> biome = playerWorld.getBiome(new BlockPos(x, 64, z));
-                    String biomeName = biome.components().stream().map(key -> key.toString()).toString();
+
+                    //String biomeName = biome.components().stream().map(key -> key.toString()).toString();
+                    String biomeName = (String) biome.unwrap().map(key -> key.identifier().toString(), l -> l);
+
                     boolean match = showBiomes.matcher(biomeName).find();
                     if (match) {
                         int y=(int)(player.getY());
@@ -674,6 +678,7 @@ public class Grid implements ClientModInitializer
     
     private void cmdBiome(LocalPlayer sender, String biome) {
         if (biome == null  || biome.isEmpty()) {
+            sender.sendSystemMessage(Component.literal("Cancelled biome display"));
             showBiomes = null;
         } else {
             try {
@@ -838,11 +843,11 @@ public class Grid implements ClientModInitializer
 
     public void setKeyBindings() {
         final KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("grid", "keys"));
-        KeyMappingHelper.registerKeyMapping(showHide = new KeyMapping("key.grid.showhide", InputConstants.Type.KEYSYM, GLFW_KEY_B, category));
-        KeyMappingHelper.registerKeyMapping(gridHere = new KeyMapping("key.grid.here", InputConstants.Type.KEYSYM, GLFW_KEY_C, category));
-        KeyMappingHelper.registerKeyMapping(gridFixY = new KeyMapping("key.grid.fixy", InputConstants.Type.KEYSYM, GLFW_KEY_Y, category));
-        KeyMappingHelper.registerKeyMapping(gridSpawns = new KeyMapping("key.grid.spawns", InputConstants.Type.KEYSYM, GLFW_KEY_L, category));
-        KeyMappingHelper.registerKeyMapping(gridSettings = new KeyMapping("key.grid.settings", InputConstants.Type.KEYSYM, GLFW_KEY_G, category));
+        KeyMappingHelper.registerKeyMapping(showHide = new KeyMapping("key.grid.showhide", InputConstants.Type.KEYSYM, 0, category));
+        KeyMappingHelper.registerKeyMapping(gridHere = new KeyMapping("key.grid.here", InputConstants.Type.KEYSYM, 0, category));
+        KeyMappingHelper.registerKeyMapping(gridFixY = new KeyMapping("key.grid.fixy", InputConstants.Type.KEYSYM, 0, category));
+        KeyMappingHelper.registerKeyMapping(gridSpawns = new KeyMapping("key.grid.spawns", InputConstants.Type.KEYSYM, 0, category));
+        KeyMappingHelper.registerKeyMapping(gridSettings = new KeyMapping("key.grid.settings", InputConstants.Type.KEYSYM, 0, category));
         ClientTickEvents.END_CLIENT_TICK.register(e->processKeyBinds());
     }
 
